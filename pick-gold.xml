@@ -1,0 +1,25 @@
+<set-modulation frequency="0" fixed="50" />
+<set-volume value="90" />
+<set-envelope length="2" reset="2" repeat="1" />
+<set-envelope length="-750" reset="2" />
+<set-frequency note="C-7" repeat="9" />
+<set-frequency note="D-7" repeat="36" />
+<set-frequency note="E-7" repeat="36" />
+<set-frequency note="D-7" repeat="18" />
+<set-frequency note="E-7" repeat="36" />
+<set-frequency note="F#7" repeat="36" />
+<set-frequency note="E-7" repeat="9" />
+<set-frequency note="F#7" repeat="36" />
+<set-frequency note="G#7" repeat="36" />
+<set-frequency note="F#7" repeat="18" />
+<set-frequency note="G#7" repeat="36" />
+<set-frequency note="A#7" repeat="36" />
+<set-frequency note="G#7" repeat="9" />
+<set-frequency note="A#7" repeat="36" />
+<set-frequency note="C-8" repeat="36" />
+<set-frequency note="A#7" repeat="18" />
+<set-frequency note="C-8" repeat="36" />
+<set-frequency note="D-8" repeat="36" />
+<set-envelope length="0" reset="0" />
+<set-volume value="0" />
+<jump pos="-1" />

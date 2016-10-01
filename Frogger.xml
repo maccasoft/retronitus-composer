@@ -1,0 +1,356 @@
+<music>
+  <instrument id="00" name="hit">
+    <set-modulation frequency="0" fixed="50" />
+    <set-volume value="95" />
+    <set-envelope length="2" reset="2" repeat="1" />
+    <set-envelope length="-260" reset="2" repeat="210" />
+    <set-envelope length="0" reset="0" />
+    <set-volume value="0" />
+    <jump pos="-1" />
+  </instrument>
+  <song name="intro" bpm="600">
+    <row id="00">
+      <channel id="0" note="C#4" instrument="00" fx1="W1" />
+      <channel id="1" note="C#3" instrument="00" fx1="W1" />
+      <channel id="2" note="C#3" instrument="00" fx1="W1" />
+    </row>
+    <row id="01">
+      <channel id="0" note="B-4" instrument="00" fx1="W16" />
+      <channel id="1" note="G-3" instrument="00" fx1="W16" />
+      <channel id="2" note="" instrument="00" fx1="W16" />
+    </row>
+    <row id="02">
+      <channel id="0" note="G-4" instrument="00" fx1="W16" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+      <channel id="2" note="G-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="03">
+      <channel id="0" note="G-4" instrument="00" fx1="W16" />
+      <channel id="1" note="D-3" instrument="00" fx1="W16" />
+      <channel id="2" note="" instrument="00" fx1="W16" />
+    </row>
+    <row id="04">
+      <channel id="0" note="G-4" instrument="00" fx1="W16" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+      <channel id="2" note="G-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="05">
+      <channel id="0" note="B-4" instrument="00" fx1="W16" />
+      <channel id="1" note="G-3" instrument="00" fx1="W16" />
+      <channel id="2" note="" instrument="00" fx1="W16" />
+    </row>
+    <row id="06">
+      <channel id="0" note="G-4" instrument="00" fx1="W16" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+      <channel id="2" note="G-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="07">
+      <channel id="0" note="G-4" instrument="00" fx1="W16" />
+      <channel id="1" note="D-3" instrument="00" fx1="W16" />
+      <channel id="2" note="" instrument="00" fx1="W16" />
+    </row>
+    <row id="08">
+      <channel id="0" note="G-4" instrument="00" fx1="W16" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+      <channel id="2" note="G-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="09">
+      <channel id="0" note="C-5" instrument="00" fx1="W16" />
+      <channel id="1" note="A-3" instrument="00" fx1="W16" />
+      <channel id="2" note="" instrument="00" fx1="W16" />
+    </row>
+    <row id="0A">
+      <channel id="0" note="C-5" instrument="00" fx1="W16" />
+      <channel id="1" note="C-4" instrument="00" fx1="W16" />
+      <channel id="2" note="A-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="0B">
+      <channel id="0" note="B-4" instrument="00" fx1="W16" />
+      <channel id="1" note="D-3" instrument="00" fx1="W16" />
+      <channel id="2" note="" instrument="00" fx1="W16" />
+    </row>
+    <row id="0C">
+      <channel id="0" note="B-4" instrument="00" fx1="W16" />
+      <channel id="1" note="C-4" instrument="00" fx1="W16" />
+      <channel id="2" note="A-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="0D">
+      <channel id="0" note="A-4" instrument="00" fx1="W16" />
+      <channel id="1" note="A-3" instrument="00" fx1="W16" />
+      <channel id="2" note="" instrument="00" fx1="W16" />
+    </row>
+    <row id="0E">
+      <channel id="0" note="" instrument="00" fx1="W16" />
+      <channel id="1" note="C-4" instrument="00" fx1="W16" />
+      <channel id="2" note="A-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="0F">
+      <channel id="0" note="" instrument="00" fx1="W16" />
+      <channel id="1" note="D-3" instrument="00" fx1="W16" />
+      <channel id="2" note="" instrument="00" fx1="W16" />
+    </row>
+    <row id="10">
+      <channel id="0" note="" instrument="00" fx1="W16" />
+      <channel id="1" note="C-4" instrument="00" fx1="W16" />
+      <channel id="2" note="A-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="11">
+      <channel id="0" note="C-5" instrument="00" fx1="W16" />
+      <channel id="1" note="A-3" instrument="00" fx1="W16" />
+      <channel id="2" note="" instrument="00" fx1="W16" />
+    </row>
+    <row id="12">
+      <channel id="0" note="C-5" instrument="00" fx1="W16" />
+      <channel id="1" note="C-4" instrument="00" fx1="W16" />
+      <channel id="2" note="A-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="13">
+      <channel id="0" note="B-4" instrument="00" fx1="W16" />
+      <channel id="1" note="D-3" instrument="00" fx1="W16" />
+      <channel id="2" note="" instrument="00" fx1="W16" />
+    </row>
+    <row id="14">
+      <channel id="0" note="B-4" instrument="00" fx1="W16" />
+      <channel id="1" note="C-4" instrument="00" fx1="W16" />
+      <channel id="2" note="A-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="15">
+      <channel id="0" note="A-4" instrument="00" fx1="W16" />
+      <channel id="1" note="A-3" instrument="00" fx1="W16" />
+      <channel id="2" note="" instrument="00" fx1="W16" />
+    </row>
+    <row id="16">
+      <channel id="0" note="A-4" instrument="00" fx1="W16" />
+      <channel id="1" note="C-4" instrument="00" fx1="W16" />
+      <channel id="2" note="A-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="17">
+      <channel id="0" note="E-5" instrument="00" fx1="W16" />
+      <channel id="1" note="D-3" instrument="00" fx1="W16" />
+      <channel id="2" note="" instrument="00" fx1="W16" />
+    </row>
+    <row id="18">
+      <channel id="0" note="E-5" instrument="00" fx1="W16" />
+      <channel id="1" note="C-4" instrument="00" fx1="W16" />
+      <channel id="2" note="A-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="19">
+      <channel id="0" note="D-5" instrument="00" fx1="W16" />
+      <channel id="1" note="A-3" instrument="00" fx1="W16" />
+      <channel id="2" note="" instrument="00" fx1="W16" />
+    </row>
+    <row id="1A">
+      <channel id="0" note="C-5" instrument="00" fx1="W16" />
+      <channel id="1" note="C-4" instrument="00" fx1="W16" />
+      <channel id="2" note="A-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="1B">
+      <channel id="0" note="B-4" instrument="00" fx1="W16" />
+      <channel id="1" note="D-3" instrument="00" fx1="W16" />
+      <channel id="2" note="" instrument="00" fx1="W16" />
+    </row>
+    <row id="1C">
+      <channel id="0" note="A-4" instrument="00" fx1="W16" />
+      <channel id="1" note="C-4" instrument="00" fx1="W16" />
+      <channel id="2" note="A-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="1D">
+      <channel id="0" note="G-4" instrument="00" fx1="W32" />
+      <channel id="1" note="B-3" instrument="00" fx1="W32" />
+      <channel id="2" note="G-3" instrument="00" fx1="W32" />
+    </row>
+  </song>
+  <song name="gameover" bpm="1200">
+    <row id="00">
+      <channel id="0" note="D#4" instrument="00" fx1="W01" />
+      <channel id="1" note="D#3" instrument="00" fx1="W01" />
+    </row>
+    <row id="01">
+      <channel id="0" note="A-4" instrument="00" fx1="W32" />
+      <channel id="1" note="F#3" instrument="00" fx1="W32" />
+    </row>
+    <row id="02">
+      <channel id="0" note="" instrument="" fx1="W16" />
+      <channel id="1" note="A-3" instrument="00" fx1="W32" />
+    </row>
+    <row id="03">
+      <channel id="0" note="F#4" instrument="00" fx1="W16" />
+    </row>
+    <row id="04">
+      <channel id="0" note="D-5" instrument="00" fx1="W32" />
+      <channel id="1" note="F#3" instrument="00" fx1="W32" />
+    </row>
+    <row id="05">
+      <channel id="0" note="D-5" instrument="00" fx1="W32" />
+      <channel id="1" note="A-3" instrument="00" fx1="W32" />
+    </row>
+    <row id="06">
+      <channel id="0" note="F-5" instrument="00" fx1="W32" />
+      <channel id="1" note="D-3" instrument="00" fx1="W32" />
+    </row>
+    <row id="07">
+      <channel id="0" note="E-5" instrument="00" fx1="W8" />
+      <channel id="1" note="A-3" instrument="00" fx1="W32" />
+    </row>
+    <row id="08">
+      <channel id="0" note="D-5" instrument="00" fx1="W8" />
+    </row>
+    <row id="09">
+      <channel id="0" note="C#5" instrument="00" fx1="W8" />
+    </row>
+    <row id="0A">
+      <channel id="0" note="B-4" instrument="00" fx1="W8" />
+    </row>
+    <row id="0B">
+      <channel id="0" note="A-4" instrument="00" fx1="W64" />
+      <channel id="1" note="F#3" instrument="00" fx1="W32" />
+    </row>
+    <row id="0C">
+      <channel id="1" note="A-3" instrument="00" fx1="W32" />
+    </row>
+    <row id="0D">
+      <channel id="0" note="G-4" instrument="00" fx1="W32" />
+      <channel id="1" note="E-3" instrument="00" fx1="W32" />
+    </row>
+    <row id="0E">
+      <channel id="0" note="A-4" instrument="00" fx1="W32" />
+      <channel id="1" note="A-3" instrument="00" fx1="W32" />
+    </row>
+    <row id="0F">
+      <channel id="0" note="E-4" instrument="00" fx1="W32" />
+      <channel id="1" note="G-3" instrument="00" fx1="W32" />
+    </row>
+    <row id="10">
+      <channel id="0" note="A-4" instrument="00" fx1="W32" />
+      <channel id="1" note="A-3" instrument="00" fx1="W32" />
+    </row>
+    <row id="11">
+      <channel id="0" note="F#4" instrument="00" fx1="W32" />
+      <channel id="1" note="D-3" instrument="00" fx1="W32" />
+    </row>
+    <row id="12">
+      <channel id="0" note="A-4" instrument="00" fx1="W32" />
+      <channel id="1" note="A-3" instrument="00" fx1="W32" />
+    </row>
+    <row id="13">
+      <channel id="0" note="D-4" instrument="00" fx1="W64" />
+      <channel id="1" note="F#3" instrument="00" fx1="W64" />
+    </row>
+  </song>
+  <song name="levelcomplete" bpm="800">
+    <row id="00">
+      <channel id="0" note="C#4" instrument="00" fx1="W01" />
+      <channel id="1" note="C#4" instrument="00" fx1="W01" />
+    </row>
+    <row id="01">
+      <channel id="0" note="G-4" instrument="00" fx1="W16" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="02">
+      <channel id="0" note="A-4" instrument="00" fx1="W16" />
+      <channel id="1" note="D-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="03">
+      <channel id="0" note="B-4" instrument="00" fx1="W16" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="04">
+      <channel id="0" note="C-5" instrument="00" fx1="W16" />
+      <channel id="1" note="D-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="05">
+      <channel id="0" note="D-5" instrument="00" fx1="W32" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="06">
+      <channel id="1" note="D-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="07">
+      <channel id="0" note="B-4" instrument="00" fx1="W32" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="08">
+      <channel id="1" note="D-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="09">
+      <channel id="0" note="G-4" instrument="00" fx1="W16" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="0A">
+      <channel id="0" note="A-4" instrument="00" fx1="W16" />
+      <channel id="1" note="D-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="0B">
+      <channel id="0" note="B-4" instrument="00" fx1="W16" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="0C">
+      <channel id="0" note="A-4" instrument="00" fx1="W16" />
+      <channel id="1" note="D-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="0D">
+      <channel id="0" note="G-4" instrument="00" fx1="W32" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="0E">
+      <channel id="1" note="D-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="0F">
+      <channel id="0" note="G-4" instrument="00" fx1="W32" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="10">
+      <channel id="1" note="D-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="11">
+      <channel id="0" note="G-4" instrument="00" fx1="W16" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="12">
+      <channel id="0" note="A-4" instrument="00" fx1="W16" />
+      <channel id="1" note="D-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="13">
+      <channel id="0" note="B-4" instrument="00" fx1="W16" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="14">
+      <channel id="0" note="C-5" instrument="00" fx1="W16" />
+      <channel id="1" note="D-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="15">
+      <channel id="0" note="D-5" instrument="00" fx1="W32" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="16">
+      <channel id="1" note="D-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="17">
+      <channel id="0" note="B-4" instrument="00" fx1="W32" />
+      <channel id="1" note="B-3" instrument="00" fx1="W16" />
+    </row>
+    <row id="18">
+      <channel id="1" note="D-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="19">
+      <channel id="0" note="D-5" instrument="00" fx1="W16" />
+      <channel id="1" note="C-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="1A">
+      <channel id="0" note="C-5" instrument="00" fx1="W16" />
+      <channel id="1" note="D-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="1B">
+      <channel id="0" note="B-4" instrument="00" fx1="W16" />
+      <channel id="1" note="C-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="1C">
+      <channel id="0" note="A-4" instrument="00" fx1="W16" />
+      <channel id="1" note="D-4" instrument="00" fx1="W16" />
+    </row>
+    <row id="1D">
+      <channel id="0" note="G-4" instrument="00" fx1="W32" />
+      <channel id="1" note="B-3" instrument="00" fx1="W64" />
+    </row>
+  </song>
+</music>
