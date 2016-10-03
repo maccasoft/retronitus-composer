@@ -45,7 +45,9 @@ public class ProjectCompiler {
         for (int ch = 0; ch < 8; ch++) {
             Channel channel = new Channel();
 
+            int noteIndex = 0;
             Pattern pattern = new Pattern();
+
             for (SongRow row : song.getRows()) {
                 String fx1 = row.getFx1(ch);
                 String fx2 = row.getFx2(ch);
@@ -71,6 +73,7 @@ public class ProjectCompiler {
 
                 if (note.isNote() && pattern.getBaseNote() == null) {
                     pattern.setBaseNote(note.getNote());
+                    noteIndex = Util.noteIndex(note.getNote());
                 }
 
                 if (note.isPause() && pattern.getNoteCount() > 0) {
@@ -78,6 +81,14 @@ public class ProjectCompiler {
                     prevNote.setWait(prevNote.getWait() + note.getWait() + 1);
                 }
                 else {
+                    if (note.isNote()) {
+                        int delta = Util.noteIndex(note.getNote()) - noteIndex;
+                        if (delta < -12 || delta > 12) {
+                            channel.add(pattern);
+                            pattern = new Pattern(note.getNote(), pattern.getInstrument());
+                        }
+                        noteIndex = Util.noteIndex(note.getNote());
+                    }
                     pattern.add(note);
                 }
             }

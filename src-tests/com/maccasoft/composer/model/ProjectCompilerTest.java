@@ -12,13 +12,6 @@
 package com.maccasoft.composer.model;
 
 import com.maccasoft.composer.DatabindingTestCase;
-import com.maccasoft.composer.model.InstrumentBuilder;
-import com.maccasoft.composer.model.Music;
-import com.maccasoft.composer.model.Pattern;
-import com.maccasoft.composer.model.Project;
-import com.maccasoft.composer.model.ProjectBuilder;
-import com.maccasoft.composer.model.ProjectCompiler;
-import com.maccasoft.composer.model.SongBuilder;
 
 public class ProjectCompilerTest extends DatabindingTestCase {
 
@@ -222,5 +215,57 @@ public class ProjectCompilerTest extends DatabindingTestCase {
         assertEquals(2, pattern.sequence.size());
         assertEquals(2, pattern.sequence.get(0).getWait());
         assertEquals(3, pattern.sequence.get(1).getWait());
+    }
+
+    public void testCompileOutOfRangeDelta() throws Exception {
+        Project project = new ProjectBuilder() //
+            .add(new InstrumentBuilder("ins00") // 00
+                .setModulation(0, 50) //
+                .setVolume(95) //
+                .setEnvelope(2, 2).repeat(1) //
+                .jump(-1)) //
+            .add(new SongBuilder() //
+                .row().play(0, "C-3", "00", "", "") //
+                .row().play(0, "F-4", "00", "", "") //
+                .row().play(0, "D-4", "00", "", "")) //
+            .build();
+
+        Music music = new ProjectCompiler(project).build(project.getSong(0));
+        assertEquals(2, music.channels[0].patterns.size());
+
+        Pattern pattern = music.channels[0].patterns.get(0);
+        assertEquals("C-3", pattern.baseNote);
+        assertEquals(project.instruments.get(0), pattern.instrument);
+        assertEquals(1, pattern.sequence.size());
+
+        pattern = music.channels[0].patterns.get(1);
+        assertEquals("F-4", pattern.baseNote);
+        assertEquals(project.instruments.get(0), pattern.instrument);
+        assertEquals(2, pattern.sequence.size());
+    }
+
+    public void testCompileInitialEmptyFrames() throws Exception {
+        Project project = new ProjectBuilder() //
+            .add(new InstrumentBuilder("ins00") // 00
+                .setModulation(0, 50) //
+                .setVolume(95) //
+                .setEnvelope(2, 2).repeat(1) //
+                .jump(-1)) //
+            .add(new SongBuilder() //
+                .row().play(0, "", "", "", "") //
+                .row().play(0, "", "", "", "") //
+                .row().play(0, "C-4", "00", "", "") //
+                .row().play(0, "D-4", "00", "", "")) //
+            .build();
+
+        Music music = new ProjectCompiler(project).build(project.getSong(0));
+        Pattern pattern = music.channels[0].patterns.get(0);
+
+        assertEquals(3, pattern.sequence.size());
+        assertEquals(project.instruments.get(0), pattern.instrument);
+        assertEquals("C-4", pattern.baseNote);
+        assertEquals("", pattern.sequence.get(0).getNote());
+        assertEquals("C-4", pattern.sequence.get(1).getNote());
+        assertEquals("D-4", pattern.sequence.get(2).getNote());
     }
 }

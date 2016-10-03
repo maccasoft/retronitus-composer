@@ -23,6 +23,11 @@ public class Pattern {
     public Pattern() {
     }
 
+    public Pattern(String baseNote, Instrument instrument) {
+        this.baseNote = baseNote;
+        this.instrument = instrument;
+    }
+
     public Pattern(String baseNote, Instrument instrument, List<Note> sequence) {
         this.baseNote = baseNote;
         this.instrument = instrument;
