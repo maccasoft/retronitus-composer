@@ -20,6 +20,7 @@ import java.util.List;
 public class Instrument {
 
     public static final String PROP_NAME = "name";
+    public static final String PROP_COMMANDS = "commands";
 
     String name;
     List<Command> list = new ArrayList<Command>();
@@ -75,7 +76,7 @@ public class Instrument {
     }
 
     public void setCommands(List<Command> list) {
-        this.list = list;
+        changeSupport.firePropertyChange(PROP_COMMANDS, this.list, this.list = list);
     }
 
     public List<Instrument> getEffects() {

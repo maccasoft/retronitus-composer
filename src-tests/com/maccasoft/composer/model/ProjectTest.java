@@ -18,10 +18,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 
 import com.maccasoft.composer.DatabindingTestCase;
-import com.maccasoft.composer.model.InstrumentBuilder;
-import com.maccasoft.composer.model.Project;
-import com.maccasoft.composer.model.ProjectBuilder;
-import com.maccasoft.composer.model.SongBuilder;
 
 public class ProjectTest extends DatabindingTestCase {
 
@@ -87,5 +83,28 @@ public class ProjectTest extends DatabindingTestCase {
         assertEquals(project.instruments.size(), subject.instruments.size());
         assertEquals(project.songs.size(), subject.songs.size());
         assertEquals(project.songs.get(0), subject.songs.get(0));
+    }
+
+    public void testAddSongSetsDirty() throws Exception {
+        Project subject = new Project();
+        subject.add(new Song("Test", 120));
+        assertTrue(subject.isDirty());
+    }
+
+    public void testAddInstrumentSetsDirty() throws Exception {
+        Project subject = new Project();
+        subject.add(new Instrument("Test"));
+        assertTrue(subject.isDirty());
+    }
+
+    public void testEditSongSetsDirty() throws Exception {
+        ProjectBuilder builder = new ProjectBuilder() //
+            .add(new SongBuilder("Intro", 120) //
+                .row().play(0, "C#4", "00", "", "") //
+                .row().play(0, "B-4", "00", "D16", ""));
+        Project subject = builder.build();
+
+        subject.getSong(0).getRow(0).setNote(0, "E-4");
+        assertTrue(subject.isDirty());
     }
 }

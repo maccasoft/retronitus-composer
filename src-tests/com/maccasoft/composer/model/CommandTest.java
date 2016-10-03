@@ -11,9 +11,6 @@
 
 package com.maccasoft.composer.model;
 
-import com.maccasoft.composer.model.Command;
-import com.maccasoft.composer.model.Util;
-
 import junit.framework.TestCase;
 
 public class CommandTest extends TestCase {
@@ -312,5 +309,28 @@ public class CommandTest extends TestCase {
 
         assertEquals("00000000", String.format("%08X", subject.getCommand()));
         assertEquals("00000008", String.format("%08X", subject.getArgument()));
+    }
+
+    public void testEquals() throws Exception {
+        Command subject1 = new Command();
+        subject1.setAction(Command.SET);
+        subject1.setProperty(Command.ENVELOPE);
+        subject1.setEnvelopeLength(-240);
+        subject1.setEnvelopeReset(1.0);
+
+        Command subject2 = new Command();
+        subject2.setAction(Command.SET);
+        subject2.setProperty(Command.ENVELOPE);
+        subject2.setEnvelopeLength(-250);
+        subject2.setEnvelopeReset(1.0);
+
+        Command subject3 = new Command();
+        subject3.setAction(Command.SET);
+        subject3.setProperty(Command.ENVELOPE);
+        subject3.setEnvelopeLength(-240);
+        subject3.setEnvelopeReset(1.0);
+
+        assertFalse(subject1.equals(subject2));
+        assertTrue(subject1.equals(subject3));
     }
 }

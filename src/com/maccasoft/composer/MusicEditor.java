@@ -433,7 +433,8 @@ public class MusicEditor {
                 InstrumentEditor editor = new InstrumentEditor(shell, selectedInstrument);
                 editor.setSerialPort(serialPort);
                 if (editor.open() == InstrumentEditor.OK) {
-                    instrumentsCombo.update(selectedInstrument, null);
+                    instrumentsCombo.refresh();
+                    instrumentsCombo.setSelection(new StructuredSelection(selectedInstrument));
                 }
             }
         });
@@ -492,7 +493,7 @@ public class MusicEditor {
                 if (newInput != null) {
                     ((IObservableList) newInput).addListChangeListener(listChangeListener);
                 }
-                Display.getDefault().timerExec(250, rowBackgroundUpdateRunnable);
+                Display.getDefault().timerExec(0, rowBackgroundUpdateRunnable);
                 super.inputChanged(viewer, oldInput, newInput);
             }
         };

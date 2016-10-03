@@ -198,7 +198,13 @@ public class InstrumentEditor extends Window {
         createControls(container);
         createButtonBar(container);
 
-        observableList.addAll(instrument.getCommands());
+        try {
+            for (Command o : instrument.getCommands()) {
+                observableList.add(o.clone());
+            }
+        } catch (Exception e) {
+            // Do nothing, clone is supported
+        }
         observableList.addListChangeListener(listChangedListener);
 
         for (Command element : list) {

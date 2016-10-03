@@ -11,6 +11,8 @@
 
 package com.maccasoft.composer;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -45,6 +47,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.maccasoft.composer.internal.ImageRegistry;
@@ -71,12 +74,21 @@ public class Main {
 
     SerialPortList serialPortList;
 
+    final PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            updateShellTitle();
+        }
+    };
+
     public Main(Shell shell) {
         this.shell = shell;
 
         shell.setLayout(new GridLayout(1, false));
 
         project = new Project();
+        project.addPropertyChangeListener(propertyChangeListener);
 
         Menu menu = new Menu(shell, SWT.BAR);
         createFileMenu(menu);
@@ -89,6 +101,16 @@ public class Main {
 
         createStatusBar(shell);
         updateShellTitle();
+
+        shell.addListener(SWT.Close, new Listener() {
+
+            @Override
+            public void handleEvent(Event event) {
+                if (project.isDirty()) {
+                    event.doit = handleUnsavedContent("Editor contains unsaved changes.  Save before exit?");
+                }
+            }
+        });
 
         serialPortList = new SerialPortList();
         serialPortList.addObserver(new Observer() {
@@ -116,8 +138,17 @@ public class Main {
 
             @Override
             public void handleEvent(Event e) {
+                if (project.isDirty()) {
+                    if (!handleUnsavedContent("Editor contains unsaved changes.  Save now?")) {
+                        return;
+                    }
+                }
+                project.removePropertyChangeListener(propertyChangeListener);
+
                 projectFile = null;
                 project = new Project();
+                project.addPropertyChangeListener(propertyChangeListener);
+
                 editor.setProject(project);
                 updateShellTitle();
             }
@@ -132,6 +163,11 @@ public class Main {
             @Override
             public void handleEvent(Event e) {
                 try {
+                    if (project.isDirty()) {
+                        if (!handleUnsavedContent("Editor contains unsaved changes.  Save now?")) {
+                            return;
+                        }
+                    }
                     handleFileOpen();
                     updateShellTitle();
                 } catch (Exception e1) {
@@ -330,7 +366,11 @@ public class Main {
                         try {
                             Project projectToOpen = new Project(is);
                             editor.setProject(projectToOpen);
+
+                            project.removePropertyChangeListener(propertyChangeListener);
+
                             project = projectToOpen;
+                            project.addPropertyChangeListener(propertyChangeListener);
                             projectFile = fileToOpen;
                         } finally {
                             is.close();
@@ -392,7 +432,7 @@ public class Main {
 
     void updateShellTitle() {
         String title = projectFile != null ? projectFile.getName() : "Untitled";
-        shell.setText(String.format("%s - %s", title, APP_TITLE));
+        shell.setText(String.format("%s%s - %s", project.isDirty() ? "*" : "", title, APP_TITLE));
     }
 
     void handlePlayerUpload() {
@@ -531,6 +571,26 @@ public class Main {
                 }
             });
         }
+    }
+
+    private boolean handleUnsavedContent(String message) {
+        int style = SWT.APPLICATION_MODAL | SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL;
+        MessageBox messageBox = new MessageBox(shell, style);
+        messageBox.setText(APP_TITLE);
+        messageBox.setMessage(message);
+        switch (messageBox.open()) {
+            case SWT.CANCEL:
+                return false;
+            case SWT.YES:
+                try {
+                    handleFileSave();
+                    return !project.isDirty();
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+                return false;
+        }
+        return true;
     }
 
     static {

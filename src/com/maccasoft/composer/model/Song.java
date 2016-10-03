@@ -86,6 +86,14 @@ public class Song {
         observableRows.add(element);
     }
 
+    public SongRow getRow(int index) {
+        return rows.get(index);
+    }
+
+    public int indexOf(SongRow element) {
+        return rows.indexOf(element);
+    }
+
     public WritableList getObservableRows() {
         return observableRows;
     }
