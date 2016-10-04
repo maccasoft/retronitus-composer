@@ -22,6 +22,7 @@ import org.eclipse.core.databinding.observable.list.ListChangeEvent;
 import org.eclipse.core.databinding.observable.list.ListDiffVisitor;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerEditor;
@@ -225,12 +226,24 @@ public class MusicEditor {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                InputDialog dlg = new InputDialog(shell, "New Song", "Song title:", "", null);
+                IInputValidator validator = new IInputValidator() {
+
+                    @Override
+                    public String isValid(String newText) {
+                        if (newText.length() == 0) {
+                            return "";
+                        }
+                        for (Song song : project.getSongs()) {
+                            if (newText.equalsIgnoreCase(song.getName())) {
+                                return "A song with the same title already exists";
+                            }
+                        }
+                        return null;
+                    }
+                };
+                InputDialog dlg = new InputDialog(shell, "New Song", "Title:", "", validator);
                 if (dlg.open() == InputDialog.OK) {
                     Song song = new Song(dlg.getValue(), 120);
-                    for (int i = 0; i < 64; i++) {
-                        song.add(new SongRow());
-                    }
                     project.add(song);
                     songsCombo.setSelection(new StructuredSelection(song));
                 }
@@ -566,7 +579,8 @@ public class MusicEditor {
             @Override
             protected int getInstrument() {
                 IStructuredSelection selection = instrumentsCombo.getStructuredSelection();
-                return project.getObservableInstruments().indexOf(selection.getFirstElement());
+                int id = project.getObservableInstruments().indexOf(selection.getFirstElement());
+                return id != -1 ? id : 0;
             }
         });
 
@@ -618,5 +632,13 @@ public class MusicEditor {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void addSongSelectionChangedListener(ISelectionChangedListener l) {
+        songsCombo.addSelectionChangedListener(l);
+    }
+
+    public void removeSongSelectionChangedListener(ISelectionChangedListener l) {
+        songsCombo.removeSelectionChangedListener(l);
     }
 }

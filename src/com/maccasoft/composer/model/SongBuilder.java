@@ -53,6 +53,14 @@ public class SongBuilder {
         return this;
     }
 
+    public SongBuilder row(int index) {
+        while (rows.size() <= index) {
+            rows.add(new SongRow());
+        }
+        current = rows.get(index);
+        return this;
+    }
+
     public SongBuilder play(int channel, String note, String instrument) {
         current.note[channel] = note;
         current.instrument[channel] = instrument;

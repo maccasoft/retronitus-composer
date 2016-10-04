@@ -38,6 +38,9 @@ public class Song {
     public Song(String name, int bpm) {
         this.name = name;
         this.bpm = bpm;
+        for (int i = 0; i < 64; i++) {
+            this.rows.add(new SongRow());
+        }
     }
 
     public Song(String name, int bpm, List<SongRow> rows) {

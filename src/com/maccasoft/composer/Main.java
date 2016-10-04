@@ -31,6 +31,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressIndicator;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.MenuEvent;
@@ -55,7 +57,9 @@ import com.maccasoft.composer.model.Command;
 import com.maccasoft.composer.model.Instrument;
 import com.maccasoft.composer.model.Music;
 import com.maccasoft.composer.model.Project;
+import com.maccasoft.composer.model.ProjectBuilder;
 import com.maccasoft.composer.model.ProjectCompiler;
+import com.maccasoft.composer.model.SongBuilder;
 
 import jssc.SerialPortException;
 
@@ -87,7 +91,9 @@ public class Main {
 
         shell.setLayout(new GridLayout(1, false));
 
-        project = new Project();
+        project = new ProjectBuilder() //
+            .add(new SongBuilder("New song", 120).row(63)) //
+            .build();
         project.addPropertyChangeListener(propertyChangeListener);
 
         Menu menu = new Menu(shell, SWT.BAR);
@@ -98,6 +104,13 @@ public class Main {
 
         editor = new MusicEditor(shell);
         editor.setProject(project);
+        editor.addSongSelectionChangedListener(new ISelectionChangedListener() {
+
+            @Override
+            public void selectionChanged(SelectionChangedEvent event) {
+                updateShellTitle();
+            }
+        });
 
         createStatusBar(shell);
         updateShellTitle();
@@ -146,7 +159,9 @@ public class Main {
                 project.removePropertyChangeListener(propertyChangeListener);
 
                 projectFile = null;
-                project = new Project();
+                project = new ProjectBuilder() //
+                    .add(new SongBuilder("New song", 120).row(63)) //
+                    .build();
                 project.addPropertyChangeListener(propertyChangeListener);
 
                 editor.setProject(project);
@@ -432,7 +447,8 @@ public class Main {
 
     void updateShellTitle() {
         String title = projectFile != null ? projectFile.getName() : "Untitled";
-        shell.setText(String.format("%s%s - %s", project.isDirty() ? "*" : "", title, APP_TITLE));
+        shell.setText(String.format("%s%s [%s] - %s", project.isDirty() ? "*" : "", title, editor.getCurrentSong().getName(),
+            APP_TITLE));
     }
 
     void handlePlayerUpload() {
