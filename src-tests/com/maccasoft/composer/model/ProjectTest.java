@@ -67,6 +67,50 @@ public class ProjectTest extends DatabindingTestCase {
         assertEquals(project.songs.size(), subject.songs.size());
     }
 
+    public void testSaveAndReadInstrumentsId() throws Exception {
+        ProjectBuilder builder = new ProjectBuilder() //
+            .add(new InstrumentBuilder("ins00") //
+                .setModulation(0, 50) //
+                .setVolume(95) //
+                .setEnvelope(2, 2).repeat(1) //
+                .setEnvelope(-260, 2).repeat(210) //
+                .setEnvelope(0, 0) //
+                .setVolume(0) //
+                .jump(-1)) //
+            .add(new InstrumentBuilder("ins01") //
+                .setModulation(0, 50) //
+                .setVolume(95) //
+                .setEnvelope(2, 2).repeat(1) //
+                .setEnvelope(-260, 2).repeat(210) //
+                .setEnvelope(0, 0) //
+                .setVolume(0) //
+                .jump(-1)) //
+            .add(new InstrumentBuilder("ins02") //
+                .setModulation(0, 50) //
+                .setVolume(95) //
+                .setEnvelope(2, 2).repeat(1) //
+                .setEnvelope(-260, 2).repeat(210) //
+                .setEnvelope(0, 0) //
+                .setVolume(0) //
+                .jump(-1));
+
+        Project project = builder.build();
+        project.remove(project.getInstrument("01"));
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        project.writeTo(new PrintStream(os));
+
+        ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+        Project subject = new Project(new BufferedReader(new InputStreamReader(is)));
+
+        assertEquals(project.instruments.size(), subject.instruments.size());
+        assertTrue(project.instruments.get(0).equalsTo(subject.instruments.get(0)));
+        assertTrue(project.instruments.get(1).equalsTo(subject.instruments.get(1)));
+        assertEquals("00", subject.getInstrumentId(subject.instruments.get(0)));
+        assertEquals("02", subject.getInstrumentId(subject.instruments.get(1)));
+        assertEquals(project.songs.size(), subject.songs.size());
+    }
+
     public void testSaveAndReadSong() throws Exception {
         ProjectBuilder builder = new ProjectBuilder() //
             .add(new SongBuilder("Intro", 120) //
@@ -106,5 +150,84 @@ public class ProjectTest extends DatabindingTestCase {
 
         subject.getSong(0).getRow(0).setNote(0, "E-4");
         assertTrue(subject.isDirty());
+    }
+
+    public void testGetInstrumentId() throws Exception {
+        ProjectBuilder builder = new ProjectBuilder() //
+            .add(new InstrumentBuilder("Ins00") //
+                .jump(-1)) //
+            .add(new InstrumentBuilder("Ins01") //
+                .jump(-1)) //
+            .add(new InstrumentBuilder("Ins03") //
+                .jump(-1));
+        Project subject = builder.build();
+
+        assertEquals(3, subject.getInstruments().size());
+        assertEquals("00", subject.getInstrumentId(subject.getInstruments().get(0)));
+        assertEquals("01", subject.getInstrumentId(subject.getInstruments().get(1)));
+        assertEquals("02", subject.getInstrumentId(subject.getInstruments().get(2)));
+    }
+
+    public void testAddInstrument() throws Exception {
+        Instrument ins00 = new InstrumentBuilder("Ins00").jump(-1).build();
+        Instrument ins01 = new InstrumentBuilder("Ins01").jump(-1).build();
+
+        Project subject = new Project();
+
+        subject.add(ins00);
+        assertEquals(1, subject.getInstruments().size());
+        assertEquals("00", subject.getInstrumentId(subject.getInstruments().get(0)));
+
+        subject.add(ins01);
+        assertEquals(2, subject.getInstruments().size());
+        assertSame(ins00, subject.getInstruments().get(0));
+        assertSame(ins01, subject.getInstruments().get(1));
+        assertEquals("00", subject.getInstrumentId(subject.getInstruments().get(0)));
+        assertEquals("01", subject.getInstrumentId(subject.getInstruments().get(1)));
+    }
+
+    public void testAddInstrumentFillsGap() throws Exception {
+        Instrument ins00 = new InstrumentBuilder("Ins00").jump(-1).build();
+        Instrument ins01 = new InstrumentBuilder("Ins01").jump(-1).build();
+        Instrument ins02 = new InstrumentBuilder("Ins02").jump(-1).build();
+        Instrument ins01b = new InstrumentBuilder("Ins01b").jump(-1).build();
+
+        Project subject = new Project();
+        subject.add(ins00);
+        subject.add(ins01);
+        subject.add(ins02);
+
+        subject.remove(ins01);
+        assertEquals(2, subject.getInstruments().size());
+        assertSame(ins00, subject.getInstrument("00"));
+        assertNull(subject.getInstrument("01"));
+        assertSame(ins02, subject.getInstrument("02"));
+
+        subject.add(ins01b);
+        assertEquals(3, subject.getInstruments().size());
+        assertSame(ins00, subject.getInstruments().get(0));
+        assertSame(ins01b, subject.getInstruments().get(1));
+        assertSame(ins02, subject.getInstruments().get(2));
+        assertSame(ins00, subject.getInstrument("00"));
+        assertSame(ins01b, subject.getInstrument("01"));
+        assertSame(ins02, subject.getInstrument("02"));
+    }
+
+    public void testRemoveInstrument() throws Exception {
+        Instrument ins00 = new InstrumentBuilder("Ins00").jump(-1).build();
+        Instrument ins01 = new InstrumentBuilder("Ins01").jump(-1).build();
+        Instrument ins02 = new InstrumentBuilder("Ins02").jump(-1).build();
+
+        Project subject = new Project();
+        subject.add(ins00);
+        subject.add(ins01);
+        subject.add(ins02);
+
+        subject.remove(ins01);
+
+        assertEquals(2, subject.getInstruments().size());
+        assertEquals("00", subject.getInstrumentId(subject.getInstruments().get(0)));
+        assertEquals("02", subject.getInstrumentId(subject.getInstruments().get(1)));
+        assertNull(subject.getInstrument("01"));
     }
 }

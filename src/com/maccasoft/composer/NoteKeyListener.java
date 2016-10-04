@@ -71,7 +71,7 @@ public class NoteKeyListener implements KeyListener {
             if (s != null) {
                 model.setNote(channel, s + String.valueOf(getOctave()));
                 if ("".equals(model.getInstrument(channel))) {
-                    model.setInstrument(channel, String.format("%02X", getInstrument()));
+                    model.setInstrument(channel, getInstrument());
                 }
                 viewer.update(model, null);
 
@@ -144,8 +144,8 @@ public class NoteKeyListener implements KeyListener {
         return 4;
     }
 
-    protected int getInstrument() {
-        return 0;
+    protected String getInstrument() {
+        return "00";
     }
 
     class ChannelRowEntry {

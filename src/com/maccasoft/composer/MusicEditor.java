@@ -13,8 +13,6 @@ package com.maccasoft.composer;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.databinding.observable.list.IListChangeListener;
 import org.eclipse.core.databinding.observable.list.IObservableList;
@@ -66,9 +64,7 @@ import org.eclipse.swt.widgets.ToolItem;
 import com.maccasoft.composer.internal.BeanPropertyCellLabelProvider;
 import com.maccasoft.composer.internal.BeanPropertyTextEditingSupport;
 import com.maccasoft.composer.internal.ImageRegistry;
-import com.maccasoft.composer.model.Command;
 import com.maccasoft.composer.model.Instrument;
-import com.maccasoft.composer.model.InstrumentBuilder;
 import com.maccasoft.composer.model.Music;
 import com.maccasoft.composer.model.Project;
 import com.maccasoft.composer.model.ProjectCompiler;
@@ -85,7 +81,7 @@ public class MusicEditor {
     Spinner bpm;
     Spinner rows;
     Spinner octave;
-    ComboViewer instrumentsCombo;
+    InstrumentToolBar instrumentToolBar;
 
     GridTableViewer viewer;
 
@@ -171,10 +167,6 @@ public class MusicEditor {
     }
 
     void updateViewFromProject() {
-        instrumentsCombo.setInput(project.getObservableInstruments());
-        if (project.getInstrumentsSize() != 0) {
-            instrumentsCombo.setSelection(new StructuredSelection(project.getInstrument(0)));
-        }
         songsCombo.setInput(project.getObservableSongs());
         if (project.getSongSize() != 0) {
             songsCombo.setSelection(new StructuredSelection(project.getSong(0)));
@@ -194,7 +186,7 @@ public class MusicEditor {
 
     void createHeader(Composite parent) {
         Composite composite = new Composite(parent, SWT.NONE);
-        GridLayout gridLayout = new GridLayout(14, false);
+        GridLayout gridLayout = new GridLayout(12, false);
         gridLayout.marginWidth = gridLayout.marginHeight = 0;
         composite.setLayout(gridLayout);
         composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -361,101 +353,7 @@ public class MusicEditor {
             }
         });
 
-        label = new Label(composite, SWT.NONE);
-        label.setText("Instrument");
-
-        instrumentsCombo = new ComboViewer(composite, SWT.DROP_DOWN | SWT.READ_ONLY | SWT.NO_FOCUS);
-        instrumentsCombo.getCombo().setVisibleItemCount(20);
-        instrumentsCombo.getCombo().setLayoutData(new GridData(Dialog.convertWidthInCharsToPixels(fontMetrics, 30), SWT.DEFAULT));
-        instrumentsCombo.setContentProvider(new ObservableListContentProvider());
-        instrumentsCombo.setLabelProvider(new LabelProvider() {
-
-            @Override
-            public String getText(Object element) {
-                int index = project.getObservableInstruments().indexOf(element);
-                return String.format("%02X - %s", index, element.toString());
-            }
-        });
-
-        toolBar = new ToolBar(composite, SWT.FLAT | SWT.NO_FOCUS);
-        toolItem = new ToolItem(toolBar, SWT.PUSH);
-        toolItem.setImage(ImageRegistry.getImageFromResources("application_add.png"));
-        toolItem.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                Instrument instrument = new InstrumentBuilder("New instrument") //
-                    .setModulation(0, 50) //
-                    .setVolume(95) //
-                    .setEnvelope(2, 2).repeat(1) //
-                    .jump(-1).build();
-
-                InstrumentEditor editor = new InstrumentEditor(shell, instrument);
-                editor.setSerialPort(serialPort);
-                if (editor.open() == InstrumentEditor.OK) {
-                    project.add(instrument);
-                    instrumentsCombo.setSelection(new StructuredSelection(instrument));
-                }
-            }
-        });
-
-        toolItem = new ToolItem(toolBar, SWT.PUSH);
-        toolItem.setImage(ImageRegistry.getImageFromResources("application_double.png"));
-        toolItem.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                IStructuredSelection selection = instrumentsCombo.getStructuredSelection();
-                if (selection.isEmpty()) {
-                    return;
-                }
-                Instrument selectedInstrument = (Instrument) selection.getFirstElement();
-
-                Instrument instrument = new Instrument(selectedInstrument.getName() + " (1)");
-                List<Command> list = new ArrayList<Command>();
-                try {
-                    for (Command cmd : selectedInstrument.getCommands()) {
-                        list.add(cmd.clone());
-                    }
-                    instrument.setCommands(list);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-                InstrumentEditor editor = new InstrumentEditor(shell, instrument);
-                editor.setSerialPort(serialPort);
-                if (editor.open() == InstrumentEditor.OK) {
-                    project.add(instrument);
-                    instrumentsCombo.setSelection(new StructuredSelection(instrument));
-                }
-            }
-        });
-
-        toolItem = new ToolItem(toolBar, SWT.PUSH);
-        toolItem.setImage(ImageRegistry.getImageFromResources("application_edit.png"));
-        toolItem.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                IStructuredSelection selection = instrumentsCombo.getStructuredSelection();
-                if (selection.isEmpty()) {
-                    return;
-                }
-                Instrument selectedInstrument = (Instrument) selection.getFirstElement();
-
-                InstrumentEditor editor = new InstrumentEditor(shell, selectedInstrument);
-                editor.setSerialPort(serialPort);
-                if (editor.open() == InstrumentEditor.OK) {
-                    instrumentsCombo.refresh();
-                    instrumentsCombo.setSelection(new StructuredSelection(selectedInstrument));
-                }
-            }
-        });
-
-        toolItem = new ToolItem(toolBar, SWT.SEPARATOR);
-
-        toolItem = new ToolItem(toolBar, SWT.PUSH);
-        toolItem.setImage(ImageRegistry.getImageFromResources("application_delete.png"));
+        instrumentToolBar = new InstrumentToolBar(composite);
     }
 
     void createMusicViewer(Composite parent) {
@@ -577,10 +475,10 @@ public class MusicEditor {
             }
 
             @Override
-            protected int getInstrument() {
-                IStructuredSelection selection = instrumentsCombo.getStructuredSelection();
-                int id = project.getObservableInstruments().indexOf(selection.getFirstElement());
-                return id != -1 ? id : 0;
+            protected String getInstrument() {
+                IStructuredSelection selection = instrumentToolBar.getStructuredSelection();
+                String id = project.getInstrumentId((Instrument) selection.getFirstElement());
+                return id != null ? id : super.getInstrument();
             }
         });
 
@@ -604,6 +502,7 @@ public class MusicEditor {
 
     public void setProject(Project project) {
         this.project = project;
+        instrumentToolBar.setProject(project);
         updateViewFromProject();
     }
 
@@ -629,6 +528,7 @@ public class MusicEditor {
             serialPort.setParams(SerialPort.BAUDRATE_115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
                 SerialPort.PARITY_NONE,
                 false, false);
+            instrumentToolBar.setSerialPort(serialPort);
         } catch (Exception e) {
             e.printStackTrace();
         }
