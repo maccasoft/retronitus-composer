@@ -30,7 +30,7 @@ public class ProjectCompiler {
         }
     }
 
-    public Music build(Song song) {
+    public Music build(Song song) throws ProjectException {
         Music music = new Music(song.getName(), song.getBpm());
 
         for (SongRow row : song.getRows()) {
@@ -60,10 +60,14 @@ public class ProjectCompiler {
                     note.setNote(fx2);
                 }
 
+                Instrument ins = instrumentsMap.get(row.getInstrument(ch));
+                if ((note.isNote() || note.isTrigger()) && ins == null) {
+                    throw new InvalidInstrumentException(project, song, row, ch);
+                }
+
                 note.setWait(getWaitFrames(fx1, fx2));
 
                 if (!"".equals(row.getInstrument(ch))) {
-                    Instrument ins = instrumentsMap.get(row.getInstrument(ch));
                     if (pattern.getInstrument() != null && pattern.getInstrument() != ins) {
                         channel.add(pattern);
                         pattern = new Pattern();

@@ -11,11 +11,6 @@
 
 package com.maccasoft.composer.internal;
 
-import java.beans.IndexedPropertyDescriptor;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
-
-import org.eclipse.core.internal.databinding.beans.BeanPropertyHelper;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.EditingSupport;
@@ -27,76 +22,17 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.widgets.Composite;
 
-@SuppressWarnings("rawtypes")
-public class BeanPropertyTextEditingSupport extends EditingSupport {
+public abstract class TextEditingSupport extends EditingSupport {
 
-    final int index;
-    final String propertyName;
-
-    final PropertyDescriptor descriptor;
-    final Method readMethod;
-    final Method writeMethod;
     TextCellEditor cellEditor;
 
-    public BeanPropertyTextEditingSupport(ColumnViewer viewer, Class beanClass, String propertyName) {
+    public TextEditingSupport(ColumnViewer viewer) {
         super(viewer);
-
-        this.index = 0;
-        this.propertyName = propertyName;
-
-        descriptor = BeanPropertyHelper.getPropertyDescriptor(beanClass, propertyName);
-        readMethod = descriptor.getReadMethod();
-        writeMethod = descriptor.getWriteMethod();
-    }
-
-    public BeanPropertyTextEditingSupport(ColumnViewer viewer, Class beanClass, int index, String propertyName) {
-        super(viewer);
-
-        this.index = index;
-        this.propertyName = propertyName;
-
-        descriptor = BeanPropertyHelper.getPropertyDescriptor(beanClass, propertyName);
-        readMethod = ((IndexedPropertyDescriptor) descriptor).getIndexedReadMethod();
-        writeMethod = ((IndexedPropertyDescriptor) descriptor).getIndexedWriteMethod();
     }
 
     @Override
     protected boolean canEdit(Object element) {
         return true;
-    }
-
-    @Override
-    protected Object getValue(Object element) {
-        try {
-            Object value;
-            if (descriptor instanceof IndexedPropertyDescriptor) {
-                value = readMethod.invoke(element, index);
-            }
-            else {
-                value = readMethod.invoke(element);
-            }
-            if (value != null) {
-                return value.toString();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
-    @Override
-    protected void setValue(Object element, Object value) {
-        try {
-            if (descriptor instanceof IndexedPropertyDescriptor) {
-                writeMethod.invoke(element, index, value != null ? value.toString() : "");
-            }
-            else {
-                writeMethod.invoke(element, value != null ? value.toString() : "");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        getViewer().update(element, null);
     }
 
     @Override

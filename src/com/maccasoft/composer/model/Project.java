@@ -33,6 +33,17 @@ public class Project {
 
     public static final String PROP_DIRTY = "dirty";
 
+    public static final String[] channelLabels = {
+        "Square 1",
+        "Square 2",
+        "Square 3",
+        "Saw 1",
+        "Saw 2",
+        "Saw 3",
+        "Triangle",
+        "Noise",
+    };
+
     List<Instrument> instruments = new ArrayList<Instrument>();
     List<Song> songs = new ArrayList<Song>();
 

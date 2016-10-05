@@ -13,6 +13,7 @@ package com.maccasoft.composer;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collections;
 
 import org.eclipse.core.databinding.observable.list.IListChangeListener;
 import org.eclipse.core.databinding.observable.list.IObservableList;
@@ -22,6 +23,7 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerEditor;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
@@ -37,6 +39,7 @@ import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.nebula.jface.gridviewer.GridTableViewer;
 import org.eclipse.nebula.jface.gridviewer.GridViewerColumn;
 import org.eclipse.nebula.jface.gridviewer.GridViewerEditor;
+import org.eclipse.nebula.jface.gridviewer.internal.CellSelection;
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
@@ -61,13 +64,14 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-import com.maccasoft.composer.internal.BeanPropertyCellLabelProvider;
-import com.maccasoft.composer.internal.BeanPropertyTextEditingSupport;
 import com.maccasoft.composer.internal.ImageRegistry;
+import com.maccasoft.composer.internal.TextEditingSupport;
 import com.maccasoft.composer.model.Instrument;
+import com.maccasoft.composer.model.InvalidInstrumentException;
 import com.maccasoft.composer.model.Music;
 import com.maccasoft.composer.model.Project;
 import com.maccasoft.composer.model.ProjectCompiler;
+import com.maccasoft.composer.model.ProjectException;
 import com.maccasoft.composer.model.Song;
 import com.maccasoft.composer.model.SongRow;
 
@@ -116,6 +120,14 @@ public class MusicEditor {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
 
+        }
+    };
+
+    final IListChangeListener instrumentsListChangeListener = new IListChangeListener() {
+
+        @Override
+        public void handleListChange(ListChangeEvent event) {
+            viewer.refresh();
         }
     };
 
@@ -255,16 +267,31 @@ public class MusicEditor {
 
                     @Override
                     public void run() {
-                        ProjectCompiler compiler = new ProjectCompiler(project);
-                        Music music = compiler.build(currentSong);
-                        byte[] data = music.toArray();
                         try {
-                            serialPort.writeInt('P');
-                            serialPort.writeInt(data.length & 0xFF);
-                            serialPort.writeInt((data.length >> 8) & 0xFF);
-                            serialPort.writeBytes(data);
-                        } catch (SerialPortException e) {
-                            e.printStackTrace();
+                            ProjectCompiler compiler = new ProjectCompiler(project);
+                            Music music = compiler.build(currentSong);
+                            byte[] data = music.toArray();
+                            try {
+                                serialPort.writeInt('P');
+                                serialPort.writeInt(data.length & 0xFF);
+                                serialPort.writeInt((data.length >> 8) & 0xFF);
+                                serialPort.writeBytes(data);
+                            } catch (SerialPortException e) {
+                                e.printStackTrace();
+                            }
+                        } catch (final ProjectException ex) {
+                            Display.getDefault().asyncExec(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    if (shell.isDisposed()) {
+                                        return;
+                                    }
+                                    MessageDialog.openError(shell, Main.APP_TITLE, "An error occurred while compiling song:\r\n\r\n"
+                                        + ex.getMessage());
+                                    focusOnErrorCell(ex);
+                                }
+                            });
                         }
                     }
                 };
@@ -419,52 +446,136 @@ public class MusicEditor {
             }
         });
 
-        String[] channelLabels = {
-            "Square 1",
-            "Square 2",
-            "Square 3",
-            "Saw 1",
-            "Saw 2",
-            "Saw 3",
-            "Triangle",
-            "Noise",
-        };
+        for (int ch = 0; ch < Project.channelLabels.length; ch++) {
+            final int channel = ch;
 
-        for (int ch = 0; ch < channelLabels.length; ch++) {
             GridColumnGroup columnGroup = new GridColumnGroup(table, SWT.NONE);
-            columnGroup.setText(channelLabels[ch]);
+            columnGroup.setText(Project.channelLabels[ch]);
 
             GridColumn column = new GridColumn(columnGroup, SWT.CENTER);
             column.setText("Note");
             column.setWidth(Dialog.convertWidthInCharsToPixels(fontMetrics, 6));
             GridViewerColumn viewerColumn = new GridViewerColumn(viewer, column);
-            viewerColumn.setLabelProvider(new BeanPropertyCellLabelProvider(SongRow.class, ch, SongRow.PROP_NOTE));
-            viewerColumn.setEditingSupport(new BeanPropertyTextEditingSupport(viewer,
-                SongRow.class, ch, SongRow.PROP_NOTE));
+            viewerColumn.setLabelProvider(new CellLabelProvider() {
+
+                @Override
+                public void update(ViewerCell cell) {
+                    SongRow element = (SongRow) cell.getElement();
+                    cell.setText(element.getNote(channel));
+                }
+            });
+            viewerColumn.setEditingSupport(new TextEditingSupport(viewer) {
+
+                @Override
+                protected Object getValue(Object element) {
+                    return ((SongRow) element).getNote(channel);
+                }
+
+                @Override
+                protected void setValue(Object element, Object value) {
+                    ((SongRow) element).setNote(channel, value.toString());
+                    viewer.update(element, null);
+                }
+            });
 
             column = new GridColumn(columnGroup, SWT.CENTER);
             column.setText("Ins.");
             column.setWidth(Dialog.convertWidthInCharsToPixels(fontMetrics, 6));
             viewerColumn = new GridViewerColumn(viewer, column);
-            viewerColumn.setLabelProvider(new BeanPropertyCellLabelProvider(SongRow.class, ch, SongRow.PROP_INSTRUMENT));
-            viewerColumn.setEditingSupport(new BeanPropertyTextEditingSupport(viewer,
-                SongRow.class, ch, SongRow.PROP_INSTRUMENT));
+            viewerColumn.setLabelProvider(new CellLabelProvider() {
+
+                @Override
+                public void update(ViewerCell cell) {
+                    SongRow element = (SongRow) cell.getElement();
+                    String value = element.getInstrument(channel);
+                    cell.setText(value);
+                    if (project.getInstrument(value) == null) {
+                        cell.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+                    }
+                    else {
+                        cell.setForeground(null);
+                    }
+                }
+            });
+            viewerColumn.setEditingSupport(new TextEditingSupport(viewer) {
+
+                @Override
+                protected Object getValue(Object element) {
+                    return ((SongRow) element).getInstrument(channel);
+                }
+
+                @Override
+                protected void setValue(Object element, Object value) {
+                    ((SongRow) element).setInstrument(channel, value.toString());
+                    viewer.update(element, null);
+                }
+            });
 
             column = new GridColumn(columnGroup, SWT.CENTER);
             column.setText("Fx1");
             column.setWidth(Dialog.convertWidthInCharsToPixels(fontMetrics, 6));
             viewerColumn = new GridViewerColumn(viewer, column);
-            viewerColumn.setLabelProvider(new BeanPropertyCellLabelProvider(SongRow.class, ch, SongRow.PROP_FX1));
-            viewerColumn.setEditingSupport(new BeanPropertyTextEditingSupport(viewer,
-                SongRow.class, ch, SongRow.PROP_FX1));
+            viewerColumn.setLabelProvider(new CellLabelProvider() {
+
+                @Override
+                public void update(ViewerCell cell) {
+                    SongRow element = (SongRow) cell.getElement();
+                    String value = element.getFx1(channel);
+                    cell.setText(value);
+                    if (value.startsWith("TR") && project.getInstrument(element.getInstrument(channel)) == null) {
+                        cell.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+                    }
+                    else {
+                        cell.setForeground(null);
+                    }
+                }
+            });
+            viewerColumn.setEditingSupport(new TextEditingSupport(viewer) {
+
+                @Override
+                protected Object getValue(Object element) {
+                    return ((SongRow) element).getFx1(channel);
+                }
+
+                @Override
+                protected void setValue(Object element, Object value) {
+                    ((SongRow) element).setFx1(channel, value.toString());
+                    viewer.update(element, null);
+                }
+            });
 
             column = new GridColumn(columnGroup, SWT.CENTER);
             column.setText("Fx2");
             column.setWidth(Dialog.convertWidthInCharsToPixels(fontMetrics, 6));
             viewerColumn = new GridViewerColumn(viewer, column);
-            viewerColumn.setLabelProvider(new BeanPropertyCellLabelProvider(SongRow.class, ch, SongRow.PROP_FX2));
-            viewerColumn.setEditingSupport(new BeanPropertyTextEditingSupport(viewer,
-                SongRow.class, ch, SongRow.PROP_FX2));
+            viewerColumn.setLabelProvider(new CellLabelProvider() {
+
+                @Override
+                public void update(ViewerCell cell) {
+                    SongRow element = (SongRow) cell.getElement();
+                    String value = element.getFx2(channel);
+                    cell.setText(value);
+                    if (value.startsWith("TR") && project.getInstrument(element.getInstrument(channel)) == null) {
+                        cell.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+                    }
+                    else {
+                        cell.setForeground(null);
+                    }
+                }
+            });
+            viewerColumn.setEditingSupport(new TextEditingSupport(viewer) {
+
+                @Override
+                protected Object getValue(Object element) {
+                    return ((SongRow) element).getFx2(channel);
+                }
+
+                @Override
+                protected void setValue(Object element, Object value) {
+                    ((SongRow) element).setFx2(channel, value.toString());
+                    viewer.update(element, null);
+                }
+            });
         }
 
         table.addKeyListener(new NoteKeyListener(viewer) {
@@ -501,7 +612,11 @@ public class MusicEditor {
     }
 
     public void setProject(Project project) {
+        if (this.project != null) {
+            this.project.getObservableInstruments().removeListChangeListener(instrumentsListChangeListener);
+        }
         this.project = project;
+        this.project.getObservableInstruments().addListChangeListener(instrumentsListChangeListener);
         instrumentToolBar.setProject(project);
         updateViewFromProject();
     }
@@ -540,5 +655,19 @@ public class MusicEditor {
 
     public void removeSongSelectionChangedListener(ISelectionChangedListener l) {
         songsCombo.removeSelectionChangedListener(l);
+    }
+
+    public void focusOnErrorCell(ProjectException e) {
+        int columnIndex = e.getChannelIndex() * 4;
+        if (e instanceof InvalidInstrumentException) {
+            columnIndex += 1;
+        }
+        viewer.setSelection(new StructuredSelection(e.getRow()), true);
+        CellSelection selection = new CellSelection(
+            Collections.singletonList(e.getRow()),
+            Collections.singletonList(Collections.singletonList(columnIndex)),
+            e.getRow(),
+            null);
+        viewer.setSelection(selection, true);
     }
 }

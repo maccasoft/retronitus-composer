@@ -59,6 +59,7 @@ import com.maccasoft.composer.model.Music;
 import com.maccasoft.composer.model.Project;
 import com.maccasoft.composer.model.ProjectBuilder;
 import com.maccasoft.composer.model.ProjectCompiler;
+import com.maccasoft.composer.model.ProjectException;
 import com.maccasoft.composer.model.SongBuilder;
 
 import jssc.SerialPortException;
@@ -262,12 +263,17 @@ public class Main {
 
             @Override
             public void handleEvent(Event e) {
-                ProjectCompiler compiler = new ProjectCompiler(project);
-                Music music = compiler.build(editor.getCurrentSong());
+                try {
+                    ProjectCompiler compiler = new ProjectCompiler(project);
+                    Music music = compiler.build(editor.getCurrentSong());
 
-                TextExportDialog dlg = new TextExportDialog(shell);
-                dlg.setSongData(music.toArray());
-                dlg.open();
+                    TextExportDialog dlg = new TextExportDialog(shell);
+                    dlg.setSongData(music.toArray());
+                    dlg.open();
+                } catch (ProjectException ex) {
+                    MessageDialog.openError(shell, APP_TITLE, "An error occurred while compiling song:\r\n\r\n" + ex.getMessage());
+                    editor.focusOnErrorCell(ex);
+                }
             }
         });
 
