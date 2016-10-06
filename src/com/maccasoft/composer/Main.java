@@ -20,6 +20,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -27,12 +29,15 @@ import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressIndicator;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.MenuEvent;
@@ -60,6 +65,7 @@ import com.maccasoft.composer.model.Project;
 import com.maccasoft.composer.model.ProjectBuilder;
 import com.maccasoft.composer.model.ProjectCompiler;
 import com.maccasoft.composer.model.ProjectException;
+import com.maccasoft.composer.model.Song;
 import com.maccasoft.composer.model.SongBuilder;
 
 import jssc.SerialPortException;
@@ -146,29 +152,7 @@ public class Main {
         item.setText("File");
         item.setMenu(menu);
 
-        item = new MenuItem(menu, SWT.PUSH);
-        item.setText("New");
-        item.addListener(SWT.Selection, new Listener() {
-
-            @Override
-            public void handleEvent(Event e) {
-                if (project.isDirty()) {
-                    if (!handleUnsavedContent("Editor contains unsaved changes.  Save now?")) {
-                        return;
-                    }
-                }
-                project.removePropertyChangeListener(propertyChangeListener);
-
-                projectFile = null;
-                project = new ProjectBuilder() //
-                    .add(new SongBuilder("New song", 120).row(63)) //
-                    .build();
-                project.addPropertyChangeListener(propertyChangeListener);
-
-                editor.setProject(project);
-                updateShellTitle();
-            }
-        });
+        createNewMenu(menu);
 
         new MenuItem(menu, SWT.SEPARATOR);
 
@@ -227,15 +211,8 @@ public class Main {
 
         new MenuItem(menu, SWT.SEPARATOR);
 
-        item = new MenuItem(menu, SWT.PUSH);
-        item.setText("Import intrument");
-        item.addListener(SWT.Selection, new Listener() {
-
-            @Override
-            public void handleEvent(Event e) {
-                handleImportInstrument();
-            }
-        });
+        createImportMenu(menu);
+        createExportMenu(menu);
 
         new MenuItem(menu, SWT.SEPARATOR);
 
@@ -250,15 +227,111 @@ public class Main {
         });
     }
 
-    void createToolsMenu(Menu parent) {
+    void createNewMenu(Menu parent) {
         Menu menu = new Menu(parent.getParent(), SWT.DROP_DOWN);
 
         MenuItem item = new MenuItem(parent, SWT.CASCADE);
-        item.setText("&Tools");
+        item.setText("New");
         item.setMenu(menu);
 
         item = new MenuItem(menu, SWT.PUSH);
-        item.setText("View compiled song");
+        item.setText("Project");
+        item.addListener(SWT.Selection, new Listener() {
+
+            @Override
+            public void handleEvent(Event e) {
+                if (project.isDirty()) {
+                    if (!handleUnsavedContent("Editor contains unsaved changes.  Save now?")) {
+                        return;
+                    }
+                }
+                project.removePropertyChangeListener(propertyChangeListener);
+
+                projectFile = null;
+                project = new ProjectBuilder() //
+                    .add(new SongBuilder("New song", 120).row(63)) //
+                    .build();
+                project.addPropertyChangeListener(propertyChangeListener);
+
+                editor.setProject(project);
+                updateShellTitle();
+            }
+        });
+
+        new MenuItem(menu, SWT.SEPARATOR);
+
+        item = new MenuItem(menu, SWT.PUSH);
+        item.setText("Song...");
+        item.addListener(SWT.Selection, new Listener() {
+
+            @Override
+            public void handleEvent(Event e) {
+                IInputValidator validator = new IInputValidator() {
+
+                    @Override
+                    public String isValid(String newText) {
+                        if (newText.length() == 0) {
+                            return "";
+                        }
+                        for (Song song : project.getSongs()) {
+                            if (newText.equalsIgnoreCase(song.getName())) {
+                                return "A song with the same title already exists";
+                            }
+                        }
+                        return null;
+                    }
+                };
+                InputDialog dlg = new InputDialog(shell, "New Song", "Title:", "", validator);
+                if (dlg.open() == InputDialog.OK) {
+                    Song song = new Song(dlg.getValue(), 120);
+                    project.add(song);
+                    editor.songsCombo.setSelection(new StructuredSelection(song));
+                }
+            }
+        });
+    }
+
+    void createImportMenu(Menu parent) {
+        Menu menu = new Menu(parent.getParent(), SWT.DROP_DOWN);
+
+        MenuItem item = new MenuItem(parent, SWT.CASCADE);
+        item.setText("Import");
+        item.setMenu(menu);
+
+        item = new MenuItem(menu, SWT.PUSH);
+        item.setText("Instruments");
+        item.addListener(SWT.Selection, new Listener() {
+
+            @Override
+            public void handleEvent(Event e) {
+                handleImportInstrument();
+            }
+        });
+    }
+
+    void createExportMenu(Menu parent) {
+        Menu menu = new Menu(parent.getParent(), SWT.DROP_DOWN);
+
+        MenuItem item = new MenuItem(parent, SWT.CASCADE);
+        item.setText("Export");
+        item.setMenu(menu);
+
+        item = new MenuItem(menu, SWT.PUSH);
+        item.setText("Instruments");
+        item.addListener(SWT.Selection, new Listener() {
+
+            @Override
+            public void handleEvent(Event event) {
+                try {
+                    handleExportInstruments();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        item = new MenuItem(menu, SWT.PUSH);
+        item.setText("Song");
         item.addListener(SWT.Selection, new Listener() {
 
             @Override
@@ -276,8 +349,14 @@ public class Main {
                 }
             }
         });
+    }
 
-        new MenuItem(menu, SWT.SEPARATOR);
+    void createToolsMenu(Menu parent) {
+        Menu menu = new Menu(parent.getParent(), SWT.DROP_DOWN);
+
+        MenuItem item = new MenuItem(parent, SWT.CASCADE);
+        item.setText("&Tools");
+        item.setMenu(menu);
 
         item = new MenuItem(menu, SWT.PUSH);
         item.setText("Upload player");
@@ -546,6 +625,7 @@ public class Main {
 
         final String fileName = dlg.open();
         if (fileName != null) {
+            final List<Instrument> list = new ArrayList<Instrument>();
             BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 
                 @Override
@@ -573,7 +653,7 @@ public class Main {
                                 }
                                 else if (line.contains("</instrument")) {
                                     if (instrument.getCommands().size() != 0) {
-                                        project.add(instrument);
+                                        list.add(instrument);
                                     }
                                     instrument = new Instrument(defaultName);
                                 }
@@ -582,7 +662,7 @@ public class Main {
                                 }
                             }
                             if (instrument.getCommands().size() != 0) {
-                                project.add(instrument);
+                                list.add(instrument);
                             }
                         } finally {
                             is.close();
@@ -592,6 +672,51 @@ public class Main {
                     }
                 }
             });
+            ListSelectionDialog sdlg = new ListSelectionDialog(shell,
+                "Import instruments",
+                "Select the instruments to import:",
+                list);
+            if (sdlg.open() == ListSelectionDialog.OK) {
+                project.getObservableInstruments().addAll(sdlg.getSelectedElements());
+            }
+        }
+    }
+
+    private void handleExportInstruments() throws Exception {
+        List<Instrument> list = new ArrayList<Instrument>(project.getInstruments());
+        ListSelectionDialog sdlg = new ListSelectionDialog(shell,
+            "Export instruments",
+            "Select the instruments to export:",
+            list);
+        if (sdlg.open() == ListSelectionDialog.OK) {
+            FileDialog dlg = new FileDialog(shell, SWT.SAVE);
+            String[] filterNames = new String[] {
+                "Instrument Files (*.xml)"
+            };
+            String[] filterExtensions = new String[] {
+                "*.xml"
+            };
+            dlg.setFilterNames(filterNames);
+            dlg.setFilterExtensions(filterExtensions);
+            dlg.setText("Save File");
+
+            final String fileName = dlg.open();
+            if (fileName != null) {
+                PrintStream os = new PrintStream(new FileOutputStream(fileName));
+                try {
+                    for (Object o : sdlg.getSelectedElements()) {
+                        Instrument ins = (Instrument) o;
+                        os.println(String.format("<instrument name=\"%s\">", ins.getName()));
+                        for (Command cmd : ins.getCommands()) {
+                            os.print("    " + cmd.toXmlString());
+                            os.println();
+                        }
+                        os.print("</instrument>\n");
+                    }
+                } finally {
+                    os.close();
+                }
+            }
         }
     }
 

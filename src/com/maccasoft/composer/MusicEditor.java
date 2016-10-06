@@ -82,6 +82,10 @@ public class MusicEditor {
 
     Shell shell;
     ComboViewer songsCombo;
+    ToolItem edit;
+    ToolItem play;
+    ToolItem stop;
+    ToolItem delete;
     Spinner bpm;
     Spinner rows;
     Spinner octave;
@@ -191,6 +195,10 @@ public class MusicEditor {
     }
 
     void updateSongView() {
+        edit.setEnabled(currentSong != null);
+        play.setEnabled(currentSong != null);
+        stop.setEnabled(currentSong != null);
+        delete.setEnabled(currentSong != null && project.getSongs().size() > 1);
         bpm.setSelection(currentSong.getBpm());
         rows.setSelection(currentSong.getObservableRows().size());
         viewer.setInput(currentSong.getObservableRows());
@@ -211,22 +219,13 @@ public class MusicEditor {
         songsCombo.getCombo().setLayoutData(new GridData(Dialog.convertWidthInCharsToPixels(fontMetrics, 30), SWT.DEFAULT));
         songsCombo.setContentProvider(new ObservableListContentProvider());
         songsCombo.setLabelProvider(new LabelProvider());
-        songsCombo.addSelectionChangedListener(new ISelectionChangedListener() {
-
-            @Override
-            public void selectionChanged(SelectionChangedEvent event) {
-                IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-                currentSong = (Song) selection.getFirstElement();
-                updateSongView();
-            }
-        });
 
         ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.NO_FOCUS);
 
-        ToolItem toolItem = new ToolItem(toolBar, SWT.PUSH);
-        toolItem.setImage(ImageRegistry.getImageFromResources("application_add.png"));
-        toolItem.setToolTipText("New song");
-        toolItem.addSelectionListener(new SelectionAdapter() {
+        edit = new ToolItem(toolBar, SWT.PUSH);
+        edit.setImage(ImageRegistry.getImageFromResources("application_edit.png"));
+        edit.setToolTipText("Rename");
+        edit.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -238,28 +237,27 @@ public class MusicEditor {
                             return "";
                         }
                         for (Song song : project.getSongs()) {
-                            if (newText.equalsIgnoreCase(song.getName())) {
+                            if (song != currentSong && newText.equalsIgnoreCase(song.getName())) {
                                 return "A song with the same title already exists";
                             }
                         }
                         return null;
                     }
                 };
-                InputDialog dlg = new InputDialog(shell, "New Song", "Title:", "", validator);
+                InputDialog dlg = new InputDialog(shell, "Rename Song", "Title:", currentSong.getName(), validator);
                 if (dlg.open() == InputDialog.OK) {
-                    Song song = new Song(dlg.getValue(), 120);
-                    project.add(song);
-                    songsCombo.setSelection(new StructuredSelection(song));
+                    currentSong.setName(dlg.getValue());
+                    songsCombo.refresh();
                 }
             }
         });
 
-        toolItem = new ToolItem(toolBar, SWT.SEPARATOR);
+        new ToolItem(toolBar, SWT.SEPARATOR);
 
-        toolItem = new ToolItem(toolBar, SWT.PUSH);
-        toolItem.setImage(ImageRegistry.getImageFromResources("control_play_blue.png"));
-        toolItem.setToolTipText("Play");
-        toolItem.addSelectionListener(new SelectionAdapter() {
+        play = new ToolItem(toolBar, SWT.PUSH);
+        play.setImage(ImageRegistry.getImageFromResources("control_play_blue.png"));
+        play.setToolTipText("Play");
+        play.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -299,10 +297,10 @@ public class MusicEditor {
             }
         });
 
-        toolItem = new ToolItem(toolBar, SWT.PUSH);
-        toolItem.setImage(ImageRegistry.getImageFromResources("control_stop_blue.png"));
-        toolItem.setToolTipText("Stop");
-        toolItem.addSelectionListener(new SelectionAdapter() {
+        stop = new ToolItem(toolBar, SWT.PUSH);
+        stop.setImage(ImageRegistry.getImageFromResources("control_stop_blue.png"));
+        stop.setToolTipText("Stop");
+        stop.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -314,11 +312,33 @@ public class MusicEditor {
             }
         });
 
-        toolItem = new ToolItem(toolBar, SWT.SEPARATOR);
+        new ToolItem(toolBar, SWT.SEPARATOR);
 
-        toolItem = new ToolItem(toolBar, SWT.PUSH);
-        toolItem.setImage(ImageRegistry.getImageFromResources("application_delete.png"));
-        toolItem.setToolTipText("Delete song");
+        delete = new ToolItem(toolBar, SWT.PUSH);
+        delete.setImage(ImageRegistry.getImageFromResources("application_delete.png"));
+        delete.setToolTipText("Delete song");
+        delete.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                IStructuredSelection selection = songsCombo.getStructuredSelection();
+                if (selection.isEmpty()) {
+                    return;
+                }
+                if (!MessageDialog.openConfirm(shell, Main.APP_TITLE, "You really want to delete this song?")) {
+                    return;
+                }
+                int index = project.getSongs().indexOf(selection.getFirstElement());
+                if (index > 0) {
+                    songsCombo.setSelection(new StructuredSelection(project.getSong(index - 1)));
+                }
+                else {
+                    songsCombo.setSelection(new StructuredSelection(project.getSong(index + 1)));
+                }
+                project.getObservableSongs().remove(selection.getFirstElement());
+                delete.setEnabled(currentSong != null && project.getSongs().size() > 1);
+            }
+        });
 
         label = new Label(composite, SWT.NONE);
         label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -381,6 +401,16 @@ public class MusicEditor {
         });
 
         instrumentToolBar = new InstrumentToolBar(composite);
+
+        songsCombo.addSelectionChangedListener(new ISelectionChangedListener() {
+
+            @Override
+            public void selectionChanged(SelectionChangedEvent event) {
+                IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+                currentSong = (Song) selection.getFirstElement();
+                updateSongView();
+            }
+        });
     }
 
     void createMusicViewer(Composite parent) {

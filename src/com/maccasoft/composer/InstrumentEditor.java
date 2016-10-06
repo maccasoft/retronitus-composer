@@ -179,6 +179,25 @@ public class InstrumentEditor extends Window {
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
 
+        GC gc = new GC(newShell);
+        fontMetrics = gc.getFontMetrics();
+        gc.dispose();
+
+        Rectangle screen = newShell.getDisplay().getClientArea();
+
+        Rectangle rect = new Rectangle(0, 0,
+            Dialog.convertHorizontalDLUsToPixels(fontMetrics, 760),
+            Dialog.convertVerticalDLUsToPixels(fontMetrics, 320));
+        rect.x = (screen.width - rect.width) / 2;
+        rect.y = (screen.height - rect.height) / 2;
+        if (rect.y < 0) {
+            rect.height += rect.y * 2;
+            rect.y = 0;
+        }
+
+        newShell.setLocation(rect.x, rect.y);
+        newShell.setSize(rect.width, rect.height);
+
         FillLayout layout = new FillLayout();
         layout.marginWidth = layout.marginHeight = 5;
         newShell.setLayout(layout);
@@ -189,10 +208,6 @@ public class InstrumentEditor extends Window {
     protected Control createContents(Composite parent) {
         Composite container = new Composite(parent, SWT.NONE);
         container.setLayout(new GridLayout(2, false));
-
-        GC gc = new GC(container);
-        fontMetrics = gc.getFontMetrics();
-        gc.dispose();
 
         context = new DataBindingContext();
 
@@ -221,7 +236,6 @@ public class InstrumentEditor extends Window {
                 context.dispose();
                 observableList.removeListChangeListener(listChangedListener);
                 for (Command element : list) {
-                    createInstrumentControls(element);
                     element.removePropertyChangeListener(propertyChangeListener);
                 }
             }

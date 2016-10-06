@@ -52,7 +52,7 @@ public class TextExportDialog extends Dialog {
     @Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
-        newShell.setText("Song Data");
+        newShell.setText("Song Export");
     }
 
     @Override
@@ -75,7 +75,9 @@ public class TextExportDialog extends Dialog {
         }
 
         Composite container = new Composite(composite, SWT.NONE);
-        container.setLayout(new GridLayout(2, false));
+        GridLayout gridLayout = new GridLayout(2, false);
+        gridLayout.marginWidth = gridLayout.marginHeight = 0;
+        container.setLayout(gridLayout);
         spin = new Button(container, SWT.RADIO);
         spin.setText("Spin");
         spin.setSelection(true);

@@ -44,7 +44,7 @@ The octave and instruments are selected using the fields at the top-right of the
 
 Music can be previewer using the play icon on the top-left near the song selection drop-down. To preview music and effects it is necessary to have a Propeller chip connected to a serial port with the player firmware. The binary firmware is included and can be uploaded to the Propeller's eeprom either with your favorite uploader program or by the integrated uploader (Tools -> Upload player). The firmware expects an 80MHz setup (5MHz crystal x16) with audio channels on pins 22 and 23.
 
-The Tools -> View compiled song menu allows to view the music data ready to be copy/pasted to an application either as a Spin DAT section or a C byte array.
+The File -> Export -> Song menu allows to view the music data ready to be copy/pasted to an application either as a Spin DAT section or a C byte array.
 
 ### Instruments / SFX Editor
 
