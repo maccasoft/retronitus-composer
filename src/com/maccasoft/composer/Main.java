@@ -73,7 +73,7 @@ import jssc.SerialPortException;
 public class Main {
 
     public static final String APP_TITLE = "Retronitus Composer";
-    public static final String APP_VERSION = "0.1.0";
+    public static final String APP_VERSION = "0.2.0";
 
     Shell shell;
     MusicEditor editor;
@@ -222,7 +222,7 @@ public class Main {
 
             @Override
             public void handleEvent(Event e) {
-                shell.dispose();
+                shell.close();
             }
         });
     }
@@ -538,6 +538,9 @@ public class Main {
 
     void handlePlayerUpload() {
         File file = new File("Player/Player.binary");
+        if (!file.exists()) {
+            file = new File("lib/Player.binary");
+        }
         if (!file.exists()) {
             file = new File("Player.binary");
         }
