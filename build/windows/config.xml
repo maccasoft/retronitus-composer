@@ -1,0 +1,33 @@
+<launch4jConfig>
+  <dontWrapJar>true</dontWrapJar>
+  <headerType>gui</headerType>
+  <outfile>composer.exe</outfile>
+  <errTitle>Retronitus Composer</errTitle>
+  <downloadUrl>http://www.oracle.com/technetwork/java/javase/downloads/index.html</downloadUrl>
+  <icon>app.ico</icon>
+  <classPath>
+    <mainClass>com.maccasoft.composer.Main</mainClass>
+    <cp>%EXEDIR%/lib/*.jar</cp>
+  </classPath>
+  <jre>
+    <path>java</path>
+    <minVersion>1.7.0</minVersion>
+    <runtimeBits>32</runtimeBits>
+    <opt>-DAPP_DIR="%EXEDIR%"</opt>
+  </jre>
+  <versionInfo>
+    <fileDescription>Retronitus Composer</fileDescription>
+    <copyright>Marco Maccaferri</copyright>
+    <productName>Retronitus Composer</productName>
+    <companyName>Marco Maccaferri</companyName>
+    <internalName>Retronitus Composer</internalName>
+    <originalFilename>composer.exe</originalFilename>
+  </versionInfo>
+  <messages>
+    <startupErr>An error occurred while starting the application.</startupErr>
+    <bundledJreErr>This application was configured to use a bundled Java Runtime Environment but the runtime is missing or corrupted.</bundledJreErr>
+    <jreVersionErr>This application requires at least Java Development Kit</jreVersionErr>
+    <launcherErr>The registry refers to a nonexistent Java Development Kit installation or the runtime is corrupted.</launcherErr>
+    <instanceAlreadyExistsMsg>An application instance is already running.</instanceAlreadyExistsMsg>
+  </messages>
+</launch4jConfig>

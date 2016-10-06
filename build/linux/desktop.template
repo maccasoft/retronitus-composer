@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Retronitus Composer
+GenericName=Retronitus Composer
+Exec=<BINARY_LOCATION>
+Icon=<ICON_NAME>
+Terminal=false
+Categories=Development;IDE;Electronics;
+MimeType=text/x-propeller-retronitus
+Keywords=embedded electronics;electronics;propeller;microcontroller;
