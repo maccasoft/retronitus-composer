@@ -82,6 +82,8 @@ public class InstrumentEditor extends Window {
     private FontMetrics fontMetrics;
     private SerialPort serialPort;
 
+    static int lastVoice = 1;
+
     final IListChangeListener listChangedListener = new IListChangeListener() {
 
         @Override
@@ -313,12 +315,82 @@ public class InstrumentEditor extends Window {
         chart = new InstrumentChart(parent);
         chart.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
+        Composite composite = new Composite(parent, SWT.NONE);
+        GridLayout gridLayout = new GridLayout(4, false);
+        gridLayout.marginWidth = gridLayout.marginHeight = 0;
+        composite.setLayout(gridLayout);
+
+        final Button square = new Button(composite, SWT.RADIO);
+        square.setText("Square");
+        square.setSelection(lastVoice == 1);
+        square.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                try {
+                    serialPort.writeString("V1");
+                    lastVoice = 1;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        final Button saw = new Button(composite, SWT.RADIO);
+        saw.setText("Saw");
+        saw.setSelection(lastVoice == 4);
+        saw.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                try {
+                    serialPort.writeString("V4");
+                    lastVoice = 4;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        final Button triangle = new Button(composite, SWT.RADIO);
+        triangle.setText("Triangle");
+        triangle.setSelection(lastVoice == 7);
+        triangle.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                try {
+                    serialPort.writeString("V7");
+                    lastVoice = 7;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        final Button noise = new Button(composite, SWT.RADIO);
+        noise.setText("Noise");
+        noise.setSelection(lastVoice == 8);
+        noise.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                try {
+                    serialPort.writeString("V8");
+                    lastVoice = 8;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         keyBoard = new PianoKeyboard(parent);
         GridData gridData = new GridData(SWT.CENTER, SWT.FILL, false, false, 2, 1);
         gridData.heightHint = 80;
         gridData.widthHint = (keyBoard.getKeyWidth() * 7) * 8 + keyBoard.getKeyWidth();
         keyBoard.setLayoutData(gridData);
         keyBoard.setSerialPort(serialPort);
+
+        gridData = new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1);
+        gridData.widthHint = (keyBoard.getKeyWidth() * 7) * 8 + keyBoard.getKeyWidth();
+        composite.setLayoutData(gridData);
     }
 
     protected Control createButtonBar(Composite parent) {

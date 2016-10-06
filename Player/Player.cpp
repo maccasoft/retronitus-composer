@@ -49,6 +49,7 @@ uint32_t muted[] = {
 };
 
 int32_t cog;
+int32_t channel;
 
 void retronitus_stop()
 {
@@ -170,12 +171,20 @@ int main() {
     Serial.start(31, 30, 0, 115200);
     retronitus_start();
 
+    channel = 0;
     instrument[0] = SET|FREQUENCY;
 
     while(1) {
         c = Serial.read();
         
         if (c == 0x08) {
+            state = 0;
+        }
+        else if (c == 'V') {
+            c = Serial.read();
+            if (c >= '1' && c <= '8') {
+                channel = c - '1';
+            }
             state = 0;
         }
         else if (c == 'U' || c == 'P') {
@@ -200,62 +209,62 @@ int main() {
         }
         else if (c == 'z') {
             instrument[1] = frequencyTable[0] >> octave;
-            retronitus_play_soundfx(0, instrument);
+            retronitus_play_soundfx(channel, instrument);
             state = 0;
         }
         else if (c == 's') {
             instrument[1] = frequencyTable[1] >> octave;
-            retronitus_play_soundfx(0, instrument);
+            retronitus_play_soundfx(channel, instrument);
             state = 0;
         }
         else if (c == 'x') {
             instrument[1] = frequencyTable[2] >> octave;
-            retronitus_play_soundfx(0, instrument);
+            retronitus_play_soundfx(channel, instrument);
             state = 0;
         }
         else if (c == 'd') {
             instrument[1] = frequencyTable[3] >> octave;
-            retronitus_play_soundfx(0, instrument);
+            retronitus_play_soundfx(channel, instrument);
             state = 0;
         }
         else if (c == 'c') {
             instrument[1] = frequencyTable[4] >> octave;
-            retronitus_play_soundfx(0, instrument);
+            retronitus_play_soundfx(channel, instrument);
             state = 0;
         }
         else if (c == 'v') {
             instrument[1] = frequencyTable[5] >> octave;
-            retronitus_play_soundfx(0, instrument);
+            retronitus_play_soundfx(channel, instrument);
             state = 0;
         }
         else if (c == 'g') {
             instrument[1] = frequencyTable[6] >> octave;
-            retronitus_play_soundfx(0, instrument);
+            retronitus_play_soundfx(channel, instrument);
             state = 0;
         }
         else if (c == 'b') {
             instrument[1] = frequencyTable[7] >> octave;
-            retronitus_play_soundfx(0, instrument);
+            retronitus_play_soundfx(channel, instrument);
             state = 0;
         }
         else if (c == 'h') {
             instrument[1] = frequencyTable[8] >> octave;
-            retronitus_play_soundfx(0, instrument);
+            retronitus_play_soundfx(channel, instrument);
             state = 0;
         }
         else if (c == 'n') {
             instrument[1] = frequencyTable[9] >> octave;
-            retronitus_play_soundfx(0, instrument);
+            retronitus_play_soundfx(channel, instrument);
             state = 0;
         }
         else if (c == 'j') {
             instrument[1] = frequencyTable[10] >> octave;
-            retronitus_play_soundfx(0, instrument);
+            retronitus_play_soundfx(channel, instrument);
             state = 0;
         }
         else if (c == 'm') {
             instrument[1] = frequencyTable[11] >> octave;
-            retronitus_play_soundfx(0, instrument);
+            retronitus_play_soundfx(channel, instrument);
             state = 0;
         }
         
@@ -308,7 +317,7 @@ int main() {
             if (c >= '1' && c <= '9') {
                 octave = 10 - (c - '0');
                 instrument[1] = frequencyTable[note] >> octave;
-                retronitus_play_soundfx(0, instrument);
+                retronitus_play_soundfx(channel, instrument);
             }
             state = 0;
         }
